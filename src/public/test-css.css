@@ -1,0 +1,16 @@
+body {
+    width: 80vh;
+    height: 80vh;
+    background-color: aquamarine;
+    position: relative;
+}
+
+#black-sq {
+    width: 50%;
+    height: 50%;
+    background-color: black;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-sizing: border-box;
+}

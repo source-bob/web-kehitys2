@@ -1,0 +1,15 @@
+GET http://localhost:3000
+
+{
+    "sender": "Bob",
+    "message": "testitervehdys"
+}
+
+
+
+POST http://localhost:3000/api/greet
+Content-Type: 'application.json'
+
+DELETE http://localhost:3000/api/resource/99
+
+GET http://localhost:3000/api/ero/2/7
