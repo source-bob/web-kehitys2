@@ -8,8 +8,10 @@ GET http://localhost:3000
 
 
 POST http://localhost:3000/api/greet
-Content-Type: 'application.json'
+Content-Type: 'application/json'
 
 DELETE http://localhost:3000/api/resource/99
 
 GET http://localhost:3000/api/ero/2/7
+
+USE http://localhost:3000/test-css.css
