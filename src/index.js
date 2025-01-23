@@ -1,4 +1,5 @@
 import express from 'express';
+import { getItems, addItems, getItemByID } from './items.js';
 
 const hostname = '127.0.0.1';
 const app = express();
@@ -46,6 +47,16 @@ app.get('/api/summa/:num1/:num2', (req, res) => {
     sum: num1 + num2,
   })
 });
+
+app.get('/api/', (req, res) => {
+  console.log('get-pyyntö apin juureen havaittu');
+  console.log(req.url);
+  res.send('Welcome to my REST API')
+})
+
+app.get('/api/items', getItems);
+app.get('/api/items/:id', getItemByID);
+app.post('/api/items', addItems);
 
 //param ero
 

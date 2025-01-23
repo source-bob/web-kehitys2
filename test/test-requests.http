@@ -14,4 +14,20 @@ DELETE http://localhost:3000/api/resource/99
 
 GET http://localhost:3000/api/ero/2/7
 
-USE http://localhost:3000/test-css.css
+GET http://localhost:3000/public/test-css.css
+
+POST http://localhost:3000/api/items
+Content-Type: application/json
+
+{
+    "nane": "Sitruuna"
+}
+
+
+## items
+
+## get all items
+
+GET http://localhost:3000/api/items
+
+
