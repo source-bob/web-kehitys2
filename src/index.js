@@ -1,5 +1,6 @@
 import express from 'express';
-import { getItems, addItems, getItemByID } from './items.js';
+import { getItems, addItems, getItemByID, putItemByID, delItemByID } from './items.js';
+import { getUsers, addUser, getUserByID, login, changePassByID, delUserByID } from './users.js';
 
 const hostname = '127.0.0.1';
 const app = express();
@@ -57,6 +58,15 @@ app.get('/api/', (req, res) => {
 app.get('/api/items', getItems);
 app.get('/api/items/:id', getItemByID);
 app.post('/api/items', addItems);
+app.put('/api/items/:id', putItemByID);
+app.delete('/api/items/:id', delItemByID);
+
+app.get('/api/users', getUsers);
+app.get('/api/users/:id', getUserByID);
+app.post('/api/users/', addUser);
+app.post('/api/users/login', login);
+app.put('/api/users/:id', changePassByID);
+app.delete('/api/users/:id', delUserByID);
 
 //param ero
 
@@ -118,6 +128,8 @@ app.put('/api/resource/:id', (req, res) => {
     res.status(404).send('Resource not found');
   }
 });
+
+
 
 app.use((req, res) => {
   res.status(404).send('Resource not found');
