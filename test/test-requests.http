@@ -23,9 +23,6 @@ GET http://localhost:3000/api/ero/2/7
 
 GET http://localhost:3000/public/test-css.css
 
-###
-
-GET http://localhost:3000/api/items
 
 ###
 
@@ -62,9 +59,10 @@ POST http://localhost:3000/api/users/
 Content-Type: application/json
 
 {
-    "username": "Uusi käyttäjä",
-    "password": "salakana",
-    "email": "newuser@example.com"
+    "username": "Tommy",
+    "password": "salaseinä",
+    "email": "tommy@example.com",
+    "user_level": "admin"
 }
 
 ###
@@ -83,13 +81,124 @@ GET http://localhost:3000/api/users/5
 
 ###
 
-PUT http://localhost:3000/api/users/2
+PUT http://localhost:3000/api/users/3
 Content-Type: application/json
 
 {
-    "password": "NEWPASS"
+    "password": "NEWPASS_799"
 }
 
 ###
 
 DELETE http://localhost:3000/api/users/2
+
+###
+
+GET http://localhost:3000/api/entries/
+
+###
+
+GET http://localhost:3000/api/entries/2
+
+###
+
+POST http://localhost:3000/api/entries
+Content-Type: application/json
+
+{
+    "user_id": 22,
+    "entry_date": "2025/02/09",
+    "mood": "normal",
+    "weight": 63,
+    "sleep_hours": 3,
+    "notes": "This is note"
+}
+
+###
+
+PUT http://localhost:3000/api/entries/5
+Content-Type: application/json
+
+{
+    "note": "updated note2"
+}
+
+###
+
+DELETE http://localhost:3000/api/entries/7
+
+###
+
+GET http://localhost:3000/api/medications/
+
+###
+
+GET http://localhost:3000/api/medications/2
+
+###
+
+POST http://localhost:3000/api/medications
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "name": "megalääke",
+    "dosage": "300 mg",
+    "frequency": "every year",
+    "start_date": "2025-02-09",
+    "end_date": "2055-02-09"
+}
+
+###
+
+DELETE http://localhost:3000/api/medications/8
+
+###
+
+PUT http://localhost:3000/api/medications/5
+Content-type: application/json
+
+{
+    "dosage": "110 mg(changed)"
+}
+
+###
+GET http://localhost:3000/api/exercises
+
+###
+GET http://localhost:3000/api/exercises/1
+
+###
+POST http://localhost:3000/api/exercises
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "type": "Sleeping",
+    "duration": 365,
+    "intensity": "High"
+}
+
+###
+DELETE http://localhost:3000/api/exercises/8
+
+###
+PUT http://localhost:3000/api/exercises/9
+Content-Type: application/json
+
+{
+    "type": "Sleeping (More)"
+}
+
+###
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+    "username": "Rob",
+    "password": "salapala"
+}
+
+### Get my user info
+GET http://localhost:3000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozNCwidXNlcm5hbWUiOiJSb2IiLCJwYXNzd29yZCI6IiQyYSQxMCR0M280dFlBVG1PeVFsTXljcVZDUk91M291a1FmamVQMTU1WE9lTldpRUpTZFc4UmMvb2VzLiIsImVtYWlsIjoicm9iQGV4YW1wbGUuY29tIiwiY3JlYXRlZF9hdCI6IjIwMjUtMDItMTNUMTU6NTc6MDQuMDAwWiIsInVzZXJfbGV2ZWwiOiJyZWd1bGFyIiwiaWF0IjoxNzM5NDc3MDI2LCJleHAiOjE3Mzk1NjM0MjZ9.Q3OhDh7ipb4PKZXYnHtxUnyaA1DGLEnKOZYBU-22GWc

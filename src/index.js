@@ -1,6 +1,10 @@
 import express from 'express';
-import { getItems, addItems, getItemByID, putItemByID, delItemByID } from './items.js';
-import { getUsers, addUser, getUserByID, login, changePassByID, delUserByID } from './users.js';
+import entryRouter from './routes/entry-router.js';
+import userRouter from './routes/user-router.js';
+import medicationRouter from './routes/medication-router.js';
+import exerciseRouter from './routes/exercise-router.js';
+import authRouter from './routes/auth-router.js';
+import cors from 'cors';
 
 const hostname = '127.0.0.1';
 const app = express();
@@ -8,6 +12,12 @@ const port = 3000;
 
 app.use('/', express.static('src/public'));
 app.use(express.json());
+app.use('/api/users', userRouter);
+app.use('/api/entries', entryRouter);
+app.use('/api/medications', medicationRouter);
+app.use('/api/exercises', exerciseRouter);
+app.use('/api/auth', authRouter);
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('Welcome to my REST API!');
@@ -53,20 +63,7 @@ app.get('/api/', (req, res) => {
   console.log('get-pyyntö apin juureen havaittu');
   console.log(req.url);
   res.send('Welcome to my REST API')
-})
-
-app.get('/api/items', getItems);
-app.get('/api/items/:id', getItemByID);
-app.post('/api/items', addItems);
-app.put('/api/items/:id', putItemByID);
-app.delete('/api/items/:id', delItemByID);
-
-app.get('/api/users', getUsers);
-app.get('/api/users/:id', getUserByID);
-app.post('/api/users/', addUser);
-app.post('/api/users/login', login);
-app.put('/api/users/:id', changePassByID);
-app.delete('/api/users/:id', delUserByID);
+});
 
 //param ero
 
