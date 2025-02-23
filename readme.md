@@ -1,0 +1,1 @@
+DELETE can delete only own entries

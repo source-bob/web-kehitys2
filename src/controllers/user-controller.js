@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { getAllUsers, findUserById, addUser, changePassByID, deleteUserById } from "../models/user-model.js";
+import { getAllUsers, findUserById, addUser, changePassByID, deleteUserById, editUser } from "../models/user-model.js";
 
 const users = getAllUsers();
 //kaikkien items hakua
@@ -69,8 +69,10 @@ const changePasswordByID = async (req, res) => {
 
   let user = await findUserById(id);
   let pass = req.body.password;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(pass, salt);
   if (pass && user) {
-    const result = await changePassByID(id, pass);
+    const result = await changePassByID(id, hashedPassword);
     console.log(`Users id ${id} password changed`, result);
     
     res.json({message: `password changed for user id ${id}`, new_password: pass});
@@ -130,5 +132,30 @@ const login = (req, res) => {
   }
 };
 
+const editUserByID = async (req, res) => {
+  const id = req.params.id;
+  const userBody = req.body;
+  console.log('change user by id', id);
+  console.log('request body:', userBody);
+  
 
-export {getUsers, getUserByID, newUser, login, changePasswordByID, deleteUser};
+  let user = await findUserById(id);
+  let {username, password, email} = userBody;
+  console.log(username, password, email);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  if (userBody && user) {
+    const result = await editUser(id, username, hashedPassword, email);
+    console.log(`Users id ${id} data changed`, result);
+    
+    res.json({message: `data changed for user id ${id}`, new_data: userBody});
+    res.status(200);
+  } else {
+    res
+    .status(400)
+    .json({message: "Invalid request: 'username', 'pass' and 'email' is required in the body or check the id"});
+  }
+};
+
+
+export {getUsers, getUserByID, newUser, login, changePasswordByID, deleteUser, editUserByID};

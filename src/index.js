@@ -6,10 +6,12 @@ import exerciseRouter from './routes/exercise-router.js';
 import authRouter from './routes/auth-router.js';
 import cors from 'cors';
 
+
 const hostname = '127.0.0.1';
 const app = express();
 const port = 3000;
 
+app.use(cors());
 app.use('/', express.static('src/public'));
 app.use(express.json());
 app.use('/api/users', userRouter);
@@ -17,7 +19,7 @@ app.use('/api/entries', entryRouter);
 app.use('/api/medications', medicationRouter);
 app.use('/api/exercises', exerciseRouter);
 app.use('/api/auth', authRouter);
-app.use(cors());
+
 
 app.get('/', (req, res) => {
   res.send('Welcome to my REST API!');

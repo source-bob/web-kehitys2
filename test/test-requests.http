@@ -59,10 +59,10 @@ POST http://localhost:3000/api/users/
 Content-Type: application/json
 
 {
-    "username": "Tommy",
-    "password": "salaseinä",
-    "email": "tommy@example.com",
-    "user_level": "admin"
+    "username": "Jennifer",
+    "password": "jenniferpass",
+    "email": "jennifer@example.com",
+    "user_level": "regular"
 }
 
 ###
