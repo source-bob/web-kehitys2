@@ -2,7 +2,7 @@ import express from 'express';
 import {
   getEntryById,
   postEntry,
-  putEntry,
+  changeEntry,
   deleteEntry,
   getUserEntries,
 } from '../controllers/entry-controller.js';
@@ -14,7 +14,7 @@ entryRouter.route('/').get(authenticateToken, getUserEntries).post(authenticateT
 
 entryRouter.route('/:id')
   .get(authenticateToken, getEntryById)
-  .put(putEntry)
+  .put(authenticateToken, changeEntry)
   .delete(authenticateToken, deleteEntry);
 
 export default entryRouter;

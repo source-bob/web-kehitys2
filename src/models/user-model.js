@@ -14,6 +14,24 @@ const selectAllUsers = async () => {
     }
 };
 
+const changeUserById = async (id, data) => {
+    try {
+        const { username, password, email } = data;
+        const sqlQuery = `
+        UPDATE users
+        SET username = ?, password = ?, email = ?
+        WHERE user_id = ?`;
+
+        const values = [username, password, email, id];
+        const [result] = await promisePool.query(sqlQuery, values);
+
+        return { updated: result.affectedRows > 0 };
+    } catch (e) {
+        console.error('error', e.message);
+        return {error: e.message};
+    }
+};
+
 const findUserById = async (id) => {
     try {
         const [user] = await promisePool.query(
@@ -149,5 +167,6 @@ export {
     deleteUserById,
     selectUserByNameAndPassword,
     selectUserByUsername,
-    editUser
+    editUser,
+    changeUserById
 };

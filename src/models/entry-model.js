@@ -2,6 +2,21 @@
 // How to handle errors in controller?
 import promisePool from '../utils/database.js';
 
+const changeEntryById = async (id, entry) => {
+  const { entry_date, mood, weight, sleep_hours, notes } = entry;
+  const sql = `UPDATE diaryentries
+                SET entry_date = "${entry_date}", mood = "${mood}", weight = ${weight}, sleep_hours = ${sleep_hours}, notes = "${notes}"
+                WHERE entry_id = ${id}`;
+    
+    try {
+        const newNote = await promisePool.query(sql);
+        return {new_note: newNote};
+    } catch (e) {
+        console.error('error', e.message);
+        return {error: e.message};
+    }
+};
+
 const listAllEntries = async () => {
   try {
     const [rows] = await promisePool.query('SELECT * FROM DiaryEntries');
@@ -15,7 +30,7 @@ const listAllEntries = async () => {
 
 const findEntryById = async (id) => {
   try {
-    const [rows] = await promisePool.query('SELECT * FROM DiaryEntries WHERE user_id = ?', [id]);
+    const [rows] = await promisePool.query('SELECT * FROM DiaryEntries WHERE entry_id = ?', [id]);
     console.log('rows', rows);
     return rows[0];
   } catch (e) {
@@ -79,4 +94,4 @@ const selectEntriesByUserId = async (userId) => {
   }
 };
 
-export { listAllEntries, findEntryById, addEntry, updateNote, deleteEntryById, selectEntriesByUserId };
+export { listAllEntries, findEntryById, addEntry, updateNote, deleteEntryById, selectEntriesByUserId, changeEntryById };

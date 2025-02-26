@@ -1,4 +1,5 @@
-import { listAllEntries, findEntryById, addEntry, updateNote, deleteEntryById, selectEntriesByUserId } from "../models/entry-model.js";
+import { changeEntryById, listAllEntries, findEntryById, addEntry, updateNote, deleteEntryById, selectEntriesByUserId } from "../models/entry-model.js";
+
 
 const getEntries = async (req, res) => {
   const result = await listAllEntries();
@@ -17,11 +18,52 @@ const getUserEntries = async (req, res) => {
 }
 
 const getEntryById = async (req, res) => {
-  const entry = await findEntryById(req.params.id);
-  if (entry) {
-    res.json(entry);
-  } else {
-    res.sendStatus(404);
+  try {
+    if (req.params.id === req.user.user_id.toString()) {
+      console.log(req.params.id, req.user.user_id);
+      const entry = await findEntryById(req.params.id);
+      if (entry) {
+        res.json(entry);
+      } else {
+        res.sendStatus(404);
+      }
+    } else {
+      console.log(req.user.user_id, req.params.id);
+      res.sendStatus(403);
+    }
+  } catch (e) {
+    console.error('something went wrong', e);
+    res.status(500).json({ message: 'wrong', error: e.message });
+  }
+  
+};
+
+
+
+const changeEntry = async (req, res) => {
+  const entryId = req.params.id;
+  const userId = req.user.user_id;
+  try {
+    let entry = await findEntryById(entryId);
+    console.log(entry.user_id, userId);
+    const entryUserId = entry.user_id;
+    if (entryUserId !== userId) {
+      return res.status(403).json({message: 'Forbidden'});
+    } else if (entryUserId === userId) {
+      const result = await changeEntryById(entryId, req.body);
+      console.log(`entry id ${entryId} changed`, result);
+
+      res.json({message: `entry id ${entryId} change onnistui`});
+      res.status(200);
+    } else {
+      res
+      .status(400)
+      .json({message: 'invalid id, entry not found'});
+    }
+    } catch (e) {
+      console.error('something went wrong', e);
+      res.status(500).json({ message: 'wrong', error: e.message });
+    
   }
 };
 
@@ -71,22 +113,27 @@ const deleteEntry = async (req, res) => {
   const id = req.params.id;
   console.log('delete entry by id', id);
 
-  let entry = await findEntryById(id);
+  try {
+    let entry = await findEntryById(id);
 
-  if (entry.user_id !== req.user.user_id) {
-    console.log(req.user.user_id, entry.user_id);
-    return res.status(403).json({message: 'Forbidden'});
-  } else if (entry.user_id === req.user.user_id) {
-    const result = await deleteEntryById(id);
-    console.log(`entry id ${id} deleted`, result);
+    if (entry.user_id !== req.user.user_id) {
+      console.log(req.user.user_id, entry.user_id);
+      return res.status(403).json({message: 'Forbidden'});
+    } else if (entry.user_id === req.user.user_id) {
+      const result = await deleteEntryById(id);
+      console.log(`entry id ${id} deleted`, result);
 
-    res.json({message: `entry id ${id} deleted onnistui`});
-    res.status(200);
-  } else {
-    res
-    .status(400)
-    .json({message: 'invalid id, entry not found'});
+      res.json({message: `entry id ${id} deleted onnistui`});
+      res.status(200);
+    } else {
+      res
+      .status(400)
+      .json({message: 'invalid id, entry not found'});
+    }
+  } catch (error) {
+    console.error('Entry not exists', error);
+    res.status(500).json({ message: 'Input error', error: error.message });
   }
 };
 
-export { getEntries, getEntryById, postEntry, putEntry, deleteEntry, getUserEntries };
+export { getEntries, getEntryById, postEntry, putEntry, deleteEntry, getUserEntries, changeEntry };

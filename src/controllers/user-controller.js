@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs';
-import { getAllUsers, findUserById, addUser, changePassByID, deleteUserById, editUser } from "../models/user-model.js";
+import { changeUserById, getAllUsers, findUserById, addUser, changePassByID, deleteUserById, editUser } from "../models/user-model.js";
+import { validationResult } from 'express-validator';
+
 
 const users = getAllUsers();
 //kaikkien items hakua
@@ -33,7 +35,12 @@ const getUserByID = async (req, res) => {
 //lisätä item
 const newUser = async (req, res) => {
   const {username, password, email, user_level} = req.body;
+
+  const errors = validationResult(req);
   //jos pyyntö sisältää name-ominaisuuden, lisätään uusi asia items-taulukkoon
+  if (!errors.isEmpty()) {
+    return res.status(400).json({errors: errors.array()});
+  }
   if (username && (email && user_level) && password) {
     
     // generoidaan id-numero uudelle asialle (yhtä suurempi, kuin viimeisin)
@@ -157,5 +164,22 @@ const editUserByID = async (req, res) => {
   }
 };
 
+const changeUserData = async (req, res) => {
+  const userId = req.user.user_id;
+  const { username, password, email } = req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  try {
+    const result = await changeUserById(userId, { username, password: hashedPassword, email });
+    console.log(`user id ${userId} data changed`, result);
 
-export {getUsers, getUserByID, newUser, login, changePasswordByID, deleteUser, editUserByID};
+    res.json({message: `user id ${userId} change onnistui`});
+    res.status(200);
+  } catch (e) {
+    console.error('denied, check your data', e);
+    res.status(500).json({ message: 'wrong data', error: e.message });
+  }
+};
+
+
+export { changeUserData, getUsers, getUserByID, newUser, login, changePasswordByID, deleteUser, editUserByID};
