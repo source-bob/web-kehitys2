@@ -5,6 +5,7 @@ import medicationRouter from './routes/medication-router.js';
 import exerciseRouter from './routes/exercise-router.js';
 import authRouter from './routes/auth-router.js';
 import cors from 'cors';
+import { notFoundHandler, errorHandler } from './middlewares/error-handler.js';
 
 
 const hostname = '127.0.0.1';
@@ -19,6 +20,11 @@ app.use('/api/entries', entryRouter);
 app.use('/api/medications', medicationRouter);
 app.use('/api/exercises', exerciseRouter);
 app.use('/api/auth', authRouter);
+
+
+// 404 virheitä varten
+app.use(notFoundHandler);
+
 
 
 app.get('/', (req, res) => {
@@ -137,3 +143,6 @@ app.use((req, res) => {
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
+
+// yleinen virhevastausten lähettäjä kaikkia virhetilanteita varten
+app.use(errorHandler);

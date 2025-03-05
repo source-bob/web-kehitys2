@@ -12,10 +12,11 @@ const authenticateToken = (req, res, next) => {
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
-  } catch (err) {
-    console.error('error', err);
-    res.status(403).send({message: 'invalid token'});
+  } catch (error) {
+    console.error('error', error);
+    res.status = 403;
+    next(error);
   }
 };
 
-export {authenticateToken};
+export { authenticateToken };

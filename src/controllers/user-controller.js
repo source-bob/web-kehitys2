@@ -1,7 +1,15 @@
 import bcrypt from 'bcryptjs';
 import { changeUserById, getAllUsers, findUserById, addUser, changePassByID, deleteUserById, editUser } from "../models/user-model.js";
-import { validationResult } from 'express-validator';
 
+import { customError } from '../middlewares/error-handler.js';
+
+const checkLevel = async (user) => {
+  if (user === 'regular') {
+    return false;
+  } else if (user === 'admin') {
+    return true;
+  }
+};
 
 const users = getAllUsers();
 //kaikkien items hakua
@@ -19,31 +27,18 @@ const getUsers = async (req, res) => {
 //TODO getUserById, käyttäjän lisäys
 
 //itemin haku id:n perusteella
-const getUserByID = async (req, res) => {
-  console.log('getUserByID', req.params.id);
-  
-  const user = await findUserById(req.params.id)
-  
-  if (user) {
-    res.json(user);
-    console.log('user found:', user);
-  } else {
-    res.status(404).json({message: 'User not found, try another id'});
-  }
-};
+
 
 //lisätä item
-const newUser = async (req, res) => {
-  const {username, password, email, user_level} = req.body;
+/*const newUser = async (req, res) => {
+  
 
   const errors = validationResult(req);
   //jos pyyntö sisältää name-ominaisuuden, lisätään uusi asia items-taulukkoon
   if (!errors.isEmpty()) {
     return res.status(400).json({errors: errors.array()});
-  }
-  if (username && (email && user_level) && password) {
-    
-    // generoidaan id-numero uudelle asialle (yhtä suurempi, kuin viimeisin)
+  } else {
+    const {username, password, email, user_level} = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -58,12 +53,72 @@ const newUser = async (req, res) => {
     
     try {
       const result = await addUser(newUser);
-      res.status(201);
-      return res.json({message: 'User added. id: ' + result});
+      return res.status(201).json({message: 'User added. id: ' + result});
     } catch (error) {
       console.error(error.message);
       return res.status(400).json({message: 'DB error ' + error.message});
     }
+  }
+};*/
+
+
+const newUser = async (req, res, next) => {
+  const check = await checkLevel(req.user.user_level);
+
+  if (check === false) {
+    return next(customError('Forbidden'));
+  }
+  const { username, password, email, user_level } = req.body;
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = { username, password: hashedPassword, email, user_level };
+
+    const result = await addUser(newUser);
+
+    res.status(201).json({ message: `User added. ID: ${result}` });
+
+  } catch (error) {
+    next(customError(error.message, 400));
+  }
+
+  
+  
+  
+};
+
+const editUserByID = async (req, res, next) => {
+  const id = req.params.id;
+  const { username, password, email } = req.body;
+  const check = await checkLevel(req.user.user_level);
+  
+  if (check === false) {
+    return next(customError('access denied'));
+  }
+  console.log('Change user by ID:', id);
+  console.log('Request body:', req.body);
+
+  try {
+    let user = await findUserById(id);
+    if (!user) {
+      return next(customError(`User with ID ${id} not found`, 404));
+    }
+
+    // Хеширование пароля
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const result = await editUser(id, username, hashedPassword, email);
+    console.log(`User ID ${id} data changed`, result);
+
+    res.status(200).json({
+      message: `Data changed for user ID ${id}`,
+      new_data: { username, email },
+    });
+  } catch (e) {
+    next(customError(e.message, 400));
   }
 };
 
@@ -91,24 +146,23 @@ const changePasswordByID = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
-  console.log('delete user by id', req.params.id);
-  const id = req.params.id;
-
-  let user = await findUserById(id);
-
-  if (user) {
-    const result = await deleteUserById(id);
-    console.log(`user id ${id} deleted`, result);
-
-    res.json({message: `user id ${id} deleted onnistui`});
-    res.status(200);
-  } else {
-    res
-    .status(400)
-    .json({message: 'invalid id'});
+const getUserByID = async (req, res, next) => {
+  console.log('getUserByID', req.params.id);
+  
+  try {
+    const user = await findUserById(req.params.id)
+    if (user) {
+      res.json(user);
+      console.log('user found:', user);
+    } else {
+      res.status(404).json({message: 'User not found, try another id'});
+    }
+  } catch (e) {
+    next(customError(e.message, 400));
   }
 };
+
+
 
 /*const delUserByID = (req, res) => {
   console.log('delete user by id', req.params.id);
@@ -125,10 +179,10 @@ const deleteUser = async (req, res) => {
   }
 };*/
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const {username, password} = req.body;
   if (!username) {
-    return res.status(401).json({message: 'username missing.'});
+    return next(customError('wrong params', 400));
   }
   const user = users.find((user) => user.username === username);
 
@@ -139,45 +193,49 @@ const login = (req, res) => {
   }
 };
 
-const editUserByID = async (req, res) => {
-  const id = req.params.id;
-  const userBody = req.body;
-  console.log('change user by id', id);
-  console.log('request body:', userBody);
-  
+// for admin
 
+
+const deleteUser = async (req, res, next) => {
+  console.log('delete user by id', req.params.id);
+  const id = req.params.id;
+  const check = await checkLevel(req.user.user_level);
+  
+  if (check === false) {
+    return next(customError('access denied'));
+  }
   let user = await findUserById(id);
-  let {username, password, email} = userBody;
-  console.log(username, password, email);
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  if (userBody && user) {
-    const result = await editUser(id, username, hashedPassword, email);
-    console.log(`Users id ${id} data changed`, result);
-    
-    res.json({message: `data changed for user id ${id}`, new_data: userBody});
-    res.status(200);
-  } else {
-    res
-    .status(400)
-    .json({message: "Invalid request: 'username', 'pass' and 'email' is required in the body or check the id"});
+
+  try {
+    if (user !== undefined) {
+      const result = await deleteUserById(id);
+      console.log(`user id ${id} deleted`, result);
+  
+      res.json({message: `user id ${id} deleted onnistui`});
+      res.status(200);
+    } else {
+      return next(customError('user not found', 404));
+    }
+  } catch (e) {
+    next(customError(e.message, 404));
   }
 };
 
-const changeUserData = async (req, res) => {
+
+const changeUserData = async (req, res, next) => {
   const userId = req.user.user_id;
   const { username, password, email } = req.body;
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const result = await changeUserById(userId, { username, password: hashedPassword, email });
     console.log(`user id ${userId} data changed`, result);
 
     res.json({message: `user id ${userId} change onnistui`});
     res.status(200);
   } catch (e) {
-    console.error('denied, check your data', e);
-    res.status(500).json({ message: 'wrong data', error: e.message });
+    next(e);
   }
 };
 

@@ -54,7 +54,7 @@ const addEntry = async (entry) => {
   }
 };
 
-const updateNote = async (id, note) => {
+/*const updateNote = async (id, note) => {
     const sql = `UPDATE diaryentries
                 SET notes = '${note}'
                 WHERE entry_id = ${id}`;
@@ -66,7 +66,7 @@ const updateNote = async (id, note) => {
         console.error('error', e.message);
         return {error: e.message};
     }
-};
+};*/
 
 const deleteEntryById = async (id) => {
     const sql = `DELETE FROM diaryentries
@@ -94,4 +94,4 @@ const selectEntriesByUserId = async (userId) => {
   }
 };
 
-export { listAllEntries, findEntryById, addEntry, updateNote, deleteEntryById, selectEntriesByUserId, changeEntryById };
+export { listAllEntries, findEntryById, addEntry, deleteEntryById, selectEntriesByUserId, changeEntryById };
